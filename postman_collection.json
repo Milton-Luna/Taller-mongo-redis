@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "Taller Flask + MongoDB + Redis",
+    "description": "Importar en Postman. Ejecutar en orden para ver el caché de Redis en acción.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" }
+  ],
+  "item": [
+    {
+      "name": "01 Listar vehículos (MongoDB)",
+      "request": { "method": "GET", "url": "{{base_url}}/vehiculos" }
+    },
+    {
+      "name": "02 Consultar Automóvil (descripción > 20: nunca se cachea)",
+      "request": { "method": "GET", "url": "{{base_url}}/vehiculos/Automóvil" }
+    },
+    {
+      "name": "03 Registrar Tren (TTL 15 s)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vehiculo\": \"Tren\",\n  \"categoria\": \"Terrestre (motorizado)\",\n  \"peso_toneladas\": 400,\n  \"descripcion\": \"Va sobre rieles\"\n}"
+        },
+        "url": "{{base_url}}/vehiculos"
+      }
+    },
+    {
+      "name": "04 Registrar Patineta (TTL 20 s)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vehiculo\": \"Patineta\",\n  \"categoria\": \"Terrestre (no motorizado)\",\n  \"peso_toneladas\": 0.003,\n  \"descripcion\": \"Tabla con ruedas\"\n}"
+        },
+        "url": "{{base_url}}/vehiculos"
+      }
+    },
+    {
+      "name": "05 Registrar Transbordador (TTL 40 s)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"vehiculo\": \"Transbordador\",\n  \"categoria\": \"Espacial\",\n  \"peso_toneladas\": 2000,\n  \"descripcion\": \"Nave reutilizable\"\n}"
+        },
+        "url": "{{base_url}}/vehiculos"
+      }
+    },
+    {
+      "name": "06 Consultar Tren (1ª vez: mongodb, 2ª vez: redis)",
+      "request": { "method": "GET", "url": "{{base_url}}/vehiculos/Tren" }
+    },
+    {
+      "name": "07 Consultar Patineta",
+      "request": { "method": "GET", "url": "{{base_url}}/vehiculos/Patineta" }
+    },
+    {
+      "name": "08 Consultar Transbordador",
+      "request": { "method": "GET", "url": "{{base_url}}/vehiculos/Transbordador" }
+    },
+    {
+      "name": "09 Ver claves y TTL en Redis",
+      "request": { "method": "GET", "url": "{{base_url}}/cache" }
+    },
+    {
+      "name": "10 Actualizar Tren (invalida la caché)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"peso_toneladas\": 450\n}"
+        },
+        "url": "{{base_url}}/vehiculos/Tren"
+      }
+    },
+    {
+      "name": "11 Eliminar Tren (invalida la caché)",
+      "request": { "method": "DELETE", "url": "{{base_url}}/vehiculos/Tren" }
+    },
+    {
+      "name": "12 Eliminar Patineta (limpieza)",
+      "request": { "method": "DELETE", "url": "{{base_url}}/vehiculos/Patineta" }
+    },
+    {
+      "name": "13 Eliminar Transbordador (limpieza)",
+      "request": { "method": "DELETE", "url": "{{base_url}}/vehiculos/Transbordador" }
+    }
+  ]
+}
